@@ -18,6 +18,10 @@
         
         /* Fundo do Modal de Gestão */
         #mgmt-modal { background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); }
+        
+        /* Ocultar barra de rolagem nas abas mobile */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
@@ -87,10 +91,13 @@
                 <i class="far fa-calendar-alt mr-2"></i> Calendário
             </button>
             <button onclick="switchTab('list')" id="tab-list" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
-                <i class="fas fa-list mr-2"></i> Visualizar por Mês
+                <i class="fas fa-list mr-2"></i> Por Mês
+            </button>
+            <button onclick="switchTab('links')" id="tab-links" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
+                <i class="fas fa-external-link-alt mr-2"></i> Links Úteis
             </button>
             <button onclick="switchTab('export')" id="tab-export" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
-                <i class="fab fa-whatsapp mr-2"></i> Exportar WhatsApp
+                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
             </button>
         </div>
 
@@ -101,14 +108,11 @@
                     <h2 id="monthYear" class="text-xl font-bold text-gray-800 capitalize select-none"></h2>
                     <button onclick="changeMonth(1)" class="text-gray-600 hover:text-red-600 p-2"><i class="fas fa-chevron-right text-xl"></i></button>
                 </div>
-                
                 <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs sm:text-sm text-gray-600 mb-2">
                     <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
                 </div>
-                <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center">
-                    </div>
+                <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center"></div>
             </div>
-
             <div id="selectedDayContainer" class="hidden">
                 <h3 id="selectedDayTitle" class="text-lg font-semibold mb-4 text-gray-800 border-b pb-2"></h3>
                 <div id="dayTravelersList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -122,18 +126,112 @@
                     <option value="all">Mostrar Todos</option>
                 </select>
             </div>
-            
-            <div id="filteredTravelList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="filteredTravelList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="view-links" class="tab-content">
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-red-600 pl-3">Portfólios</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <a href="https://drive.google.com/file/d/1EXFxJKBIKgvsI7uyHRk9K6WR1MUSDbUu/view?usp=sharing" target="_blank" class="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center gap-3">
+                        <i class="fas fa-camera text-orange-500 text-xl"></i>
+                        <span class="font-medium">Verão</span>
+                    </a>
+                    <a href="https://drive.google.com/file/d/1LloPGyn_PSx-A572zve6p08ZjLUIySqf/view?usp=sharing" target="_blank" class="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center gap-3">
+                        <i class="fas fa-snowflake text-blue-500 text-xl"></i>
+                        <span class="font-medium">Inverno</span>
+                    </a>
+                    <a href="https://drive.google.com/file/d/1_6rYSvfunzbf2ykLYjFjWCzHdPVt7GI/view?usp=drivesdk" target="_blank" class="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center gap-3">
+                        <i class="fas fa-mountain text-amber-700 text-xl"></i>
+                        <span class="font-medium">Atacama</span>
+                    </a>
                 </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-red-600 pl-3">Links Essenciais & Descontos</h3>
+                <div class="space-y-3">
+                    <a href="https://www.segurospromo.com.br/?utm_medium=afiliado&pcrid=9772&utm_source=site-blog" target="_blank" class="bg-white p-4 rounded-lg shadow flex justify-between items-center hover:bg-gray-50">
+                        <div>
+                            <p class="font-bold text-gray-800">🏥 Seguro Viagem (Até 15% OFF)</p>
+                            <p class="text-xs text-gray-500">Use o Cupom: <span class="font-bold text-red-600">TBT30</span> para até 30% em épocas promocionais</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </a>
+                    <a href="https://pay.kiwify.com.br/Q8dpeCO" target="_blank" class="bg-white p-4 rounded-lg shadow flex justify-between items-center hover:bg-gray-50">
+                        <div>
+                            <p class="font-bold text-gray-800">📖 Guia de Viagem a Santiago</p>
+                            <p class="text-xs text-gray-500">Tudo para programar sua viagem e economizar.</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </a>
+                    <a href="https://wise.com/invite/ihpc/larissas1674" target="_blank" class="bg-white p-4 rounded-lg shadow flex justify-between items-center hover:bg-gray-50">
+                        <div>
+                            <p class="font-bold text-gray-800">💳 Conta Global Wise</p>
+                            <p class="text-xs text-gray-500">Isenção de taxa na primeira transferência.</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </a>
+                    <a href="https://holafly.sjv.io/xLVqAk" target="_blank" class="bg-white p-4 rounded-lg shadow flex justify-between items-center hover:bg-gray-50">
+                        <div>
+                            <p class="font-bold text-gray-800">📱 E-sim Virtual - Holafly</p>
+                            <p class="text-xs text-gray-500">Internet ilimitada no Chile.</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </a>
+                    <a href="https://www.hostalprovidencia.com/" target="_blank" class="bg-white p-4 rounded-lg shadow flex justify-between items-center hover:bg-gray-50">
+                        <div>
+                            <p class="font-bold text-gray-800">🏨 Hostal Providencia (10% OFF)</p>
+                            <p class="text-xs text-gray-500">Cupom: <span class="font-bold text-red-600">LARI10</span></p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300"></i>
+                    </a>
+                    <a href="https://chat.whatsapp.com/Bnr6CrCgOt6EOiYUvjxv1b" target="_blank" class="bg-green-50 p-4 rounded-lg border border-green-200 shadow flex justify-between items-center hover:bg-green-100">
+                        <div>
+                            <p class="font-bold text-green-800">💬 Grupo Dicas e Festas no Chile</p>
+                            <p class="text-xs text-green-600 text-opacity-80">Comunidade no WhatsApp.</p>
+                        </div>
+                        <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-red-600 pl-3">Checklist de Compras (Shopee)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <a href="https://s.shopee.com.br/7KsTus4etL" target="_blank" class="bg-white p-3 rounded-lg shadow text-center hover:shadow-md transition">
+                        <i class="fas fa-tshirt text-gray-400 mb-2 block"></i>
+                        <span class="text-xs font-medium">Roupa Térmica</span>
+                    </a>
+                    <a href="https://s.shopee.com.br/9KbvXeZJj3" target="_blank" class="bg-white p-3 rounded-lg shadow text-center hover:shadow-md transition">
+                        <i class="fas fa-backpack text-gray-400 mb-2 block"></i>
+                        <span class="text-xs font-medium">Mochila Viagem</span>
+                    </a>
+                    <a href="https://s.shopee.com.br/3fxYnIxoKw" target="_blank" class="bg-white p-3 rounded-lg shadow text-center hover:shadow-md transition">
+                        <i class="fas fa-pump-soap text-gray-400 mb-2 block"></i>
+                        <span class="text-xs font-medium">Kit Frascos 100ml</span>
+                    </a>
+                    <a href="https://s.shopee.com.br/1qVubzcqTF" target="_blank" class="bg-white p-3 rounded-lg shadow text-center hover:shadow-md transition">
+                        <i class="fas fa-mitten text-gray-400 mb-2 block"></i>
+                        <span class="text-xs font-medium">Luva Neve</span>
+                    </a>
+                    <a href="https://s.shopee.com.br/1qVubzcqTF" target="_blank" class="bg-white p-3 rounded-lg shadow text-center hover:shadow-md transition">
+                        <i class="fas fa-socks text-gray-400 mb-2 block"></i>
+                        <span class="text-xs font-medium">Meia Térmica</span>
+                    </a>
+                    <a href="https://s.shopee.com.br/2g51cE96E5" target="_blank" class="bg-white p-3 rounded-lg shadow text-center hover:shadow-md transition">
+                        <i class="fas fa-battery-full text-gray-400 mb-2 block"></i>
+                        <span class="text-xs font-medium">PowerBank</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div id="view-export" class="tab-content">
             <div class="bg-white p-6 rounded-lg shadow-md mb-6">
                 <h3 class="font-bold text-gray-800 mb-2 text-lg">Lista de Viagens Futuras</h3>
-                <p class="text-sm text-gray-500 mb-4">Esta lista agrupa as viagens a partir da data de hoje, formatada para colar direto no WhatsApp com o link do site.</p>
-                
+                <p class="text-sm text-gray-500 mb-4">Lista agrupa viagens a partir de hoje para o WhatsApp.</p>
                 <textarea id="whatsappOutput" readonly class="w-full h-64 p-3 border border-gray-300 rounded-md bg-gray-50 text-gray-800 font-mono text-sm resize-none focus:outline-none"></textarea>
-                
                 <button onclick="copyWhatsAppText()" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 shadow-sm flex items-center justify-center">
                     <i class="far fa-copy mr-2"></i> Copiar para o WhatsApp
                 </button>
@@ -146,19 +244,12 @@
         Desenvolvido por <a href="https://instagram.com/soumaisalex" target="_blank" class="text-inherit hover:underline font-medium">Alex Passos</a>
     </footer>
 
-    <style>
-        /* Ocultar barra de rolagem nas abas mobile */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-
     <script>
         let travelers = [];
         let today = new Date();
         let currentDate = new Date(today.getFullYear(), today.getMonth(), 1); 
         let editingId = null; 
 
-        // --- SISTEMA DE TOAST ---
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -171,13 +262,11 @@
             }, 3000);
         }
 
-        // --- INTEGRAÇÃO COM API ---
         async function loadTravelers() {
             try {
                 const res = await fetch('/api/viagens');
                 if (!res.ok) throw new Error('Falha ao buscar dados');
                 const data = await res.json();
-                
                 travelers = data.map(t => ({
                     id: t.id,
                     names: t.names,
@@ -186,411 +275,272 @@
                     whatsapp: t.whatsapp,
                     instagram: t.instagram || ""
                 }));
-
                 populateMonthFilter();
                 renderCalendar();
-                
                 if(document.getElementById('view-list').classList.contains('active')) renderFilteredList();
-                if(document.getElementById('view-export').classList.contains('active')) generateWhatsAppList();
-                
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
                 showToast("Erro ao conectar com o banco de dados.", "error");
             }
         }
 
-        // --- FILTRO DINÂMICO ---
         function populateMonthFilter() {
             const select = document.getElementById('monthFilter');
-            const previousSelection = select.value;
-            
+            const prev = select.value;
             select.innerHTML = '<option value="all">Mostrar Todos</option>';
-            
             if (travelers.length === 0) return;
-
-            const monthsSet = new Set();
+            const months = new Set();
             travelers.forEach(t => {
-                monthsSet.add(t.startDate.substring(0, 7));
-                monthsSet.add(t.endDate.substring(0, 7));
+                months.add(t.startDate.substring(0, 7));
+                months.add(t.endDate.substring(0, 7));
             });
-
-            const sortedMonths = Array.from(monthsSet).sort();
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
-            sortedMonths.forEach(ym => {
-                const [year, month] = ym.split('-');
-                const option = document.createElement('option');
-                option.value = ym; 
-                option.text = `${monthNames[parseInt(month) - 1]}/${year}`; 
-                select.appendChild(option);
+            const sorted = Array.from(months).sort();
+            const names = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            sorted.forEach(ym => {
+                const [y, m] = ym.split('-');
+                const opt = document.createElement('option');
+                opt.value = ym; 
+                opt.text = `${names[parseInt(m)-1]}/${y}`; 
+                select.appendChild(opt);
             });
-
-            const currentYM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            if (sortedMonths.includes(previousSelection)) {
-                select.value = previousSelection;
-            } else if (sortedMonths.includes(currentYM)) {
-                select.value = currentYM;
-            } else {
-                select.value = 'all';
-            }
+            select.value = prev || 'all';
         }
 
-        // --- GESTÃO EXCLUSÃO ---
         function openMgmt() {
             const pass = prompt("Digite a senha de acesso (Exclusão):");
             if (pass === "tripforchilex") {
                 renderMgmtList();
                 document.getElementById('mgmt-modal').classList.remove('hidden');
-            } else if (pass !== null) {
-                showToast("Senha incorreta!", "error");
-            }
+            } else if (pass !== null) showToast("Senha incorreta!", "error");
         }
 
-        function closeMgmt() {
-            document.getElementById('mgmt-modal').classList.add('hidden');
-        }
+        function closeMgmt() { document.getElementById('mgmt-modal').classList.add('hidden'); }
 
         async function deleteTraveler(id, name) {
-            if (!confirm(`Deseja realmente remover ${name} da lista?`)) return;
+            if (!confirm(`Deseja realmente remover ${name}?`)) return;
             try {
                 const res = await fetch(`/api/viagens?id=${id}`, { method: 'DELETE' });
                 if (res.ok) {
-                    showToast(`${name} removido com sucesso.`);
+                    showToast(`${name} removido.`);
                     await loadTravelers(); 
                     renderMgmtList(); 
-                } else throw new Error('Falha ao excluir');
-            } catch (error) {
-                showToast("Erro ao excluir do banco de dados.", "error");
-            }
+                } else throw new Error('Erro');
+            } catch (e) { showToast("Erro ao excluir.", "error"); }
         }
 
         function renderMgmtList() {
-            const listDiv = document.getElementById('mgmt-list');
-            const sorted = [...travelers].sort((a, b) => a.names.localeCompare(b.names));
-            
-            listDiv.innerHTML = sorted.map(t => `
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+            const div = document.getElementById('mgmt-list');
+            const sorted = [...travelers].sort((a,b) => a.names.localeCompare(b.names));
+            div.innerHTML = sorted.map(t => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <div>
                         <span class="text-gray-700 font-medium block">${t.names}</span>
                         <span class="text-xs text-gray-500">${formatDateToBR(t.startDate)} a ${formatDateToBR(t.endDate)}</span>
                     </div>
-                    <button onclick="deleteTraveler(${t.id}, '${t.names}')" class="text-red-500 hover:bg-red-100 hover:text-red-700 w-8 h-8 rounded-full transition flex items-center justify-center">✕</button>
+                    <button onclick="deleteTraveler(${t.id}, '${t.names}')" class="text-red-500 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-            `).join('') || '<p class="text-gray-400 text-center py-4">Nenhum viajante na lista.</p>';
+            `).join('') || '<p class="text-center py-4">Vazio</p>';
         }
 
-        // --- EDIÇÃO (Pública) ---
         function editTraveler(id) {
-            const traveler = travelers.find(t => t.id === id);
-            if (!traveler) return;
-
-            document.getElementById('names').value = traveler.names;
-            document.getElementById('startDate').value = traveler.startDate;
-            document.getElementById('endDate').value = traveler.endDate;
-            document.getElementById('whatsapp').value = traveler.whatsapp;
-            document.getElementById('instagram').value = traveler.instagram;
-
+            const t = travelers.find(x => x.id === id);
+            if (!t) return;
+            document.getElementById('names').value = t.names;
+            document.getElementById('startDate').value = t.startDate;
+            document.getElementById('endDate').value = t.endDate;
+            document.getElementById('whatsapp').value = t.whatsapp;
+            document.getElementById('instagram').value = t.instagram;
             editingId = id;
-
-            const form = document.getElementById('travelForm');
-            if (form.classList.contains('hidden')) toggleForm();
-
+            if (document.getElementById('travelForm').classList.contains('hidden')) toggleForm();
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Salvar Alterações";
-            btn.classList.replace('bg-red-600', 'bg-blue-600');
-            btn.classList.replace('hover:bg-red-700', 'hover:bg-blue-700');
-            
+            btn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 shadow-sm";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
-
-            form.parentElement.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('travelForm').parentElement.scrollIntoView({ behavior: 'smooth' });
         }
 
         function resetFormState() {
             document.getElementById('travelForm').reset();
             editingId = null;
-            
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Adicionar à Lista";
-            btn.classList.replace('bg-blue-600', 'bg-red-600');
-            btn.classList.replace('hover:bg-blue-700', 'hover:bg-red-700');
-            
+            btn.className = "w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 shadow-sm";
             document.getElementById('cancelEditBtn').classList.add('hidden');
-            
-            const form = document.getElementById('travelForm');
-            if (!form.classList.contains('hidden')) toggleForm();
+            if (!document.getElementById('travelForm').classList.contains('hidden')) toggleForm();
         }
 
-        // --- SUBMISSÃO FORMULÁRIO ---
-        document.getElementById('whatsapp').addEventListener('input', function(e) {
+        document.getElementById('whatsapp').addEventListener('input', e => {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
         });
 
         document.getElementById('travelForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const telRegex = /^\d{2}-\d{5}-\d{4}$/;
             if (!telRegex.test(document.getElementById('whatsapp').value)) {
-                showToast("Telefone inválido! Use o formato: 11-99999-9999", "error");
+                showToast("Formato: 11-99999-9999", "error");
                 return;
             }
-
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-
-            if(new Date(endDate) < new Date(startDate)) {
-                showToast("A data de retorno não pode ser anterior à chegada!", "error");
+            const s = document.getElementById('startDate').value;
+            const ed = document.getElementById('endDate').value;
+            if(new Date(ed) < new Date(s)) {
+                showToast("Data inválida!", "error");
                 return;
             }
-
             const payload = {
                 names: document.getElementById('names').value,
-                startDate: startDate,
-                endDate: endDate,
+                startDate: s, endDate: ed,
                 whatsapp: document.getElementById('whatsapp').value,
                 instagram: document.getElementById('instagram').value
             };
-
             if (editingId) payload.id = editingId;
-
-            const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Salvando...";
-            submitBtn.disabled = true;
-
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
             try {
                 const res = await fetch('/api/viagens', {
                     method: editingId ? 'PUT' : 'POST', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
                 if (res.ok) {
-                    showToast(editingId ? "Viagem atualizada com sucesso!" : "Viajante adicionado com sucesso!");
+                    showToast(editingId ? "Atualizado!" : "Adicionado!");
                     await loadTravelers();
                     resetFormState();
-                } else throw new Error('Falha na requisição');
-            } catch (error) {
-                showToast("Erro ao conectar com o banco.", "error");
-            } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
+                }
+            } catch (err) { showToast("Erro ao salvar.", "error"); } finally { btn.disabled = false; }
         });
 
         function toggleForm() {
-            const form = document.getElementById('travelForm');
-            const icon = document.getElementById('formIcon');
-            form.classList.toggle('hidden');
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
+            const f = document.getElementById('travelForm');
+            const i = document.getElementById('formIcon');
+            f.classList.toggle('hidden');
+            i.classList.toggle('fa-chevron-down');
+            i.classList.toggle('fa-chevron-up');
         }
 
-        // --- ABA EXPORTAR WHATSAPP ---
         function generateWhatsAppList() {
-            const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            
-            const validTravelers = travelers.filter(t => {
+            const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const valid = travelers.filter(t => {
                 const [y, m, d] = t.endDate.split('-');
-                const tEnd = new Date(y, m - 1, d);
-                return tEnd >= startOfToday;
-            });
-
-            validTravelers.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                return new Date(y, m-1, d) >= startToday;
+            }).sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
 
             const grouped = {};
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
-            validTravelers.forEach(t => {
+            const names = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            valid.forEach(t => {
                 const [sy, sm, sd] = t.startDate.split('-');
                 const [ey, em, ed] = t.endDate.split('-');
-                
-                const monthName = monthNames[parseInt(sm) - 1];
-                const groupKey = `*${monthName} ${sy}*`; 
-                
-                if (!grouped[groupKey]) grouped[groupKey] = [];
-
-                let dateStr = "";
-                if (sm === em && sy === ey) {
-                    dateStr = `${sd} a ${ed}`;
-                } else {
-                    dateStr = `${sd}/${sm} a ${ed}/${em}`;
-                }
-
-                grouped[groupKey].push(`${dateStr} - ${t.names}`);
+                const key = `*${names[parseInt(sm)-1]} ${sy}*`;
+                if (!grouped[key]) grouped[key] = [];
+                let ds = (sm === em && sy === ey) ? `${sd} a ${ed}` : `${sd}/${sm} a ${ed}/${em}`;
+                grouped[key].push(`${ds} - ${t.names}`);
             });
 
-            // Texto inicial com o link
-            let outputText = "🇨🇱 *Lista de Viagens - Novos Chilenos*\n_Não está na lista? Adicione suas datas aqui:_\n👉 https://trip-for-chile.pages.dev/\n\n";
-            
-            let hasTrips = false;
-            for (const [group, lines] of Object.entries(grouped)) {
-                hasTrips = true;
-                outputText += `${group}\n`;
-                lines.forEach(line => outputText += `${line}\n`);
-                outputText += `\n`; 
+            let out = "🇨🇱 *Lista de Viagens - Novos Chilenos*\n_Não está na lista? Adicione aqui:_\n👉 https://trip-for-chile.pages.dev/\n\n";
+            let found = false;
+            for (const [g, lines] of Object.entries(grouped)) {
+                found = true;
+                out += `${g}\n${lines.join('\n')}\n\n`;
             }
-
-            const outputElem = document.getElementById('whatsappOutput');
-            outputElem.value = hasTrips ? outputText.trim() : "Nenhuma viagem futura encontrada.";
+            document.getElementById('whatsappOutput').value = found ? out.trim() : "Nenhuma viagem futura.";
         }
 
         function copyWhatsAppText() {
-            const textToCopy = document.getElementById('whatsappOutput').value;
-            if(!textToCopy || textToCopy === "Nenhuma viagem futura encontrada.") {
-                showToast("Nada para copiar!", "error");
-                return;
-            }
-            
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showToast("Copiado para a área de transferência!");
-            }).catch(err => {
-                showToast("Erro ao copiar o texto.", "error");
-                console.error("Erro no Clipboard:", err);
-            });
+            const t = document.getElementById('whatsappOutput').value;
+            if(!t || t === "Nenhuma viagem futura.") return showToast("Nada para copiar!", "error");
+            navigator.clipboard.writeText(t).then(() => showToast("Copiado!"));
         }
 
-        // --- RENDERIZAÇÃO E NAVEGAÇÃO ---
-        const formatDateToBR = (dateStr) => { const [y, m, d] = dateStr.split('-'); return `${d}/${m}`; };
-        
-        const formatWhatsAppLink = (phone) => { 
-            let clean = phone.replace(/\D/g, ''); 
-            return `https://wa.me/${clean.startsWith('55') || clean.length > 11 ? clean : '55'+clean}`; 
+        const formatDateToBR = (ds) => { const [y, m, d] = ds.split('-'); return `${d}/${m}`; };
+        const formatWhatsAppLink = (p) => { 
+            let c = p.replace(/\D/g, ''); 
+            return `https://wa.me/${c.startsWith('55') || c.length > 11 ? c : '55'+c}`; 
         };
-        const formatInstagramLink = (user) => `https://instagram.com/${user.replace('@', '').trim()}`;
+        const formatInstagramLink = (u) => `https://instagram.com/${u.replace('@', '').trim()}`;
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${tab}`).classList.add('active');
-            
-            const tabs = ['calendar', 'list', 'export'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (t === tab) {
-                    btn.className = 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none transition';
-                } else {
-                    btn.className = 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition';
-                }
+            ['calendar', 'list', 'links', 'export'].forEach(t => {
+                const b = document.getElementById(`tab-${t}`);
+                if (t === tab) b.className = 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none transition';
+                else b.className = 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition';
             });
-            
             if(tab === 'calendar') renderCalendar();
             if(tab === 'list') renderFilteredList();
             if(tab === 'export') generateWhatsAppList();
         }
 
-        function changeMonth(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
-            renderCalendar();
-            document.getElementById('selectedDayContainer').classList.add('hidden');
-        }
-
-        function getTravelersForDate(dateString) {
-            return travelers.filter(t => dateString >= t.startDate && dateString <= t.endDate);
-        }
+        function changeMonth(d) { currentDate.setMonth(currentDate.getMonth() + d); renderCalendar(); document.getElementById('selectedDayContainer').classList.add('hidden'); }
+        function getTravelersForDate(ds) { return travelers.filter(t => ds >= t.startDate && ds <= t.endDate); }
 
         function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            document.getElementById('monthYear').innerText = `${monthNames[month]} ${year}`;
-            
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
-
-            for (let i = 0; i < firstDay; i++) {
-                calendarDays.innerHTML += `<div></div>`;
-            }
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                const dayString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                const travelersOnThisDay = getTravelersForDate(dayString);
-                const hasTravelers = travelersOnThisDay.length > 0;
-                
-                let dayClass = "p-2 sm:p-4 border rounded cursor-pointer transition relative h-12 sm:h-16 flex items-center justify-center ";
-                dayClass += hasTravelers ? "bg-red-50 hover:bg-red-100 border-red-200 font-bold text-red-700 shadow-sm" : "bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700";
-
-                let indicator = hasTravelers ? `<div class="absolute bottom-1 right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full shadow-sm"></div>` : "";
-
-                calendarDays.innerHTML += `
-                    <div class="${dayClass}" onclick="showTravelersOnDay('${dayString}', ${i}, '${monthNames[month]}')">
-                        ${i}
-                        ${indicator}
-                    </div>
-                `;
+            const y = currentDate.getFullYear();
+            const m = currentDate.getMonth();
+            const fd = new Date(y, m, 1).getDay();
+            const dim = new Date(y, m + 1, 0).getDate();
+            const ns = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('monthYear').innerText = `${ns[m]} ${y}`;
+            const container = document.getElementById('calendarDays');
+            container.innerHTML = '';
+            for (let i = 0; i < fd; i++) container.innerHTML += `<div></div>`;
+            for (let i = 1; i <= dim; i++) {
+                const ds = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const has = getTravelersForDate(ds).length > 0;
+                let cls = "p-2 sm:p-4 border rounded cursor-pointer transition relative h-12 sm:h-16 flex items-center justify-center ";
+                cls += has ? "bg-red-50 hover:bg-red-100 border-red-200 font-bold text-red-700 shadow-sm" : "bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700";
+                container.innerHTML += `<div class="${cls}" onclick="showTravelersOnDay('${ds}', ${i}, '${ns[m]}')">${i}${has ? `<div class="absolute bottom-1 right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>`:''}</div>`;
             }
         }
 
-        function showTravelersOnDay(dateString, day, monthName) {
-            const list = getTravelersForDate(dateString);
-            const container = document.getElementById('selectedDayContainer');
-            const title = document.getElementById('selectedDayTitle');
-            const listDiv = document.getElementById('dayTravelersList');
-            
-            if (list.length === 0) {
-                container.classList.add('hidden');
-                return;
-            }
-
-            container.classList.remove('hidden');
-            title.innerText = `Viajantes em ${day} de ${monthName}`;
-            listDiv.innerHTML = generateCardsHTML(list);
-            
-            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        function showTravelersOnDay(ds, d, mn) {
+            const l = getTravelersForDate(ds);
+            const c = document.getElementById('selectedDayContainer');
+            if (l.length === 0) { c.classList.add('hidden'); return; }
+            c.classList.remove('hidden');
+            document.getElementById('selectedDayTitle').innerText = `Viajantes em ${d} de ${mn}`;
+            document.getElementById('dayTravelersList').innerHTML = generateCardsHTML(l);
+            c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function renderFilteredList() {
-            const filterValue = document.getElementById('monthFilter').value;
-            const listDiv = document.getElementById('filteredTravelList');
-            
-            let filteredList = travelers;
-            if (filterValue !== 'all') {
-                const [filterYear, filterMonth] = filterValue.split('-');
-                const filterStart = new Date(filterYear, parseInt(filterMonth) - 1, 1);
-                const filterEnd = new Date(filterYear, parseInt(filterMonth), 0);
-                
-                filteredList = travelers.filter(t => {
-                    const tStart = new Date(t.startDate + "T00:00:00");
-                    const tEnd = new Date(t.endDate + "T00:00:00");
-                    return tStart <= filterEnd && tEnd >= filterStart;
+            const fv = document.getElementById('monthFilter').value;
+            const div = document.getElementById('filteredTravelList');
+            let fl = travelers;
+            if (fv !== 'all') {
+                const [fy, fm] = fv.split('-');
+                const fs = new Date(fy, parseInt(fm)-1, 1);
+                const fe = new Date(fy, parseInt(fm), 0);
+                fl = travelers.filter(t => {
+                    const ts = new Date(t.startDate + "T00:00:00");
+                    const te = new Date(t.endDate + "T00:00:00");
+                    return ts <= fe && te >= fs;
                 });
             }
-
-            filteredList.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-            listDiv.innerHTML = filteredList.length > 0 ? generateCardsHTML(filteredList) : `<p class="text-gray-500 col-span-2 text-center py-8">Nenhum viajante encontrado para este mês.</p>`;
+            fl.sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
+            div.innerHTML = fl.length > 0 ? generateCardsHTML(fl) : `<p class="text-center col-span-2 py-8">Vazio</p>`;
         }
 
-        function generateCardsHTML(travelerArray) {
-            return travelerArray.map(t => {
-                let linksHTML = `<a href="${formatWhatsAppLink(t.whatsapp)}" target="_blank" class="text-green-500 hover:text-green-700 mr-4 transition" title="Chamar no WhatsApp"><i class="fab fa-whatsapp text-xl"></i></a>`;
-                if (t.instagram) linksHTML += `<a href="${formatInstagramLink(t.instagram)}" target="_blank" class="text-pink-500 hover:text-pink-700 transition" title="Ver Instagram"><i class="fab fa-instagram text-xl"></i> ${t.instagram}</a>`;
-                
-                return `
-                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 border-l-4 border-l-red-500 relative hover:shadow-md transition">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-lg text-gray-800 pr-8 leading-tight">${t.names}</h3>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded hidden sm:inline-block">
-                                    <i class="far fa-calendar-alt"></i> ${formatDateToBR(t.startDate)} a ${formatDateToBR(t.endDate)}
-                                </span>
-                                <button onclick="editTraveler(${t.id})" class="text-blue-500 hover:text-blue-700 transition bg-blue-50 hover:bg-blue-100 w-7 h-7 rounded flex items-center justify-center" title="Editar viagem">
-                                    <i class="fas fa-edit text-sm"></i>
-                                </button>
-                            </div>
+        function generateCardsHTML(arr) {
+            return arr.map(t => `
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 border-l-4 border-l-red-500 relative hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg text-gray-800 pr-8 leading-tight">${t.names}</h3>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded hidden sm:inline-block">
+                                <i class="far fa-calendar-alt"></i> ${formatDateToBR(t.startDate)} a ${formatDateToBR(t.endDate)}
+                            </span>
+                            <button onclick="editTraveler(${t.id})" class="text-blue-500 bg-blue-50 w-7 h-7 rounded flex items-center justify-center"><i class="fas fa-edit text-sm"></i></button>
                         </div>
-                        <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded inline-block sm:hidden mb-2">
-                            <i class="far fa-calendar-alt"></i> ${formatDateToBR(t.startDate)} a ${formatDateToBR(t.endDate)}
-                        </span>
-                        <div class="mt-2 sm:mt-4 flex items-center border-t border-gray-50 pt-2">
-                            ${linksHTML}
-                        </div>
-                    </div>`;
-            }).join('');
+                    </div>
+                    <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded inline-block sm:hidden mb-2">${formatDateToBR(t.startDate)} a ${formatDateToBR(t.endDate)}</span>
+                    <div class="mt-2 flex items-center border-t border-gray-50 pt-2">
+                        <a href="${formatWhatsAppLink(t.whatsapp)}" target="_blank" class="text-green-500 mr-4"><i class="fab fa-whatsapp text-xl"></i></a>
+                        ${t.instagram ? `<a href="${formatInstagramLink(t.instagram)}" target="_blank" class="text-pink-500"><i class="fab fa-instagram text-xl"></i> ${t.instagram}</a>`:''}
+                    </div>
+                </div>`).join('');
         }
 
-        // --- INICIALIZAÇÃO ---
         loadTravelers();
     </script>
 </body>
