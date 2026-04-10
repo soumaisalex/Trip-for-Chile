@@ -130,7 +130,7 @@
         <div id="view-export" class="tab-content">
             <div class="bg-white p-6 rounded-lg shadow-md mb-6">
                 <h3 class="font-bold text-gray-800 mb-2 text-lg">Lista de Viagens Futuras</h3>
-                <p class="text-sm text-gray-500 mb-4">Esta lista agrupa as viagens a partir da data de hoje, formatada para colar direto no WhatsApp.</p>
+                <p class="text-sm text-gray-500 mb-4">Esta lista agrupa as viagens a partir da data de hoje, formatada para colar direto no WhatsApp com o link do site.</p>
                 
                 <textarea id="whatsappOutput" readonly class="w-full h-64 p-3 border border-gray-300 rounded-md bg-gray-50 text-gray-800 font-mono text-sm resize-none focus:outline-none"></textarea>
                 
@@ -388,17 +388,14 @@
 
         // --- ABA EXPORTAR WHATSAPP ---
         function generateWhatsAppList() {
-            // Zera as horas para comparar apenas os dias
             const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             
-            // Filtra: Apenas viagens cuja data final é >= hoje
             const validTravelers = travelers.filter(t => {
                 const [y, m, d] = t.endDate.split('-');
                 const tEnd = new Date(y, m - 1, d);
                 return tEnd >= startOfToday;
             });
 
-            // Ordena cronologicamente pela data de início
             validTravelers.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
             const grouped = {};
@@ -414,26 +411,28 @@
                 if (!grouped[groupKey]) grouped[groupKey] = [];
 
                 let dateStr = "";
-                // Se a viagem começa e termina no mesmo mês: "07 a 13"
                 if (sm === em && sy === ey) {
                     dateStr = `${sd} a ${ed}`;
                 } else {
-                    // Se vira o mês: "28/08 a 04/09"
                     dateStr = `${sd}/${sm} a ${ed}/${em}`;
                 }
 
                 grouped[groupKey].push(`${dateStr} - ${t.names}`);
             });
 
-            let outputText = "";
+            // Texto inicial com o link
+            let outputText = "🇨🇱 *Lista de Viagens - Novos Chilenos*\n_Não está na lista? Adicione suas datas aqui:_\n👉 https://trip-for-chile.pages.dev/\n\n";
+            
+            let hasTrips = false;
             for (const [group, lines] of Object.entries(grouped)) {
+                hasTrips = true;
                 outputText += `${group}\n`;
                 lines.forEach(line => outputText += `${line}\n`);
-                outputText += `\n`; // Quebra linha extra entre meses
+                outputText += `\n`; 
             }
 
             const outputElem = document.getElementById('whatsappOutput');
-            outputElem.value = outputText.trim() || "Nenhuma viagem futura encontrada.";
+            outputElem.value = hasTrips ? outputText.trim() : "Nenhuma viagem futura encontrada.";
         }
 
         function copyWhatsAppText() {
@@ -450,7 +449,6 @@
                 console.error("Erro no Clipboard:", err);
             });
         }
-
 
         // --- RENDERIZAÇÃO E NAVEGAÇÃO ---
         const formatDateToBR = (dateStr) => { const [y, m, d] = dateStr.split('-'); return `${d}/${m}`; };
