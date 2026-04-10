@@ -82,12 +82,15 @@
             </form>
         </div>
 
-        <div class="flex border-b border-gray-300 mb-6">
+        <div class="flex border-b border-gray-300 mb-6 overflow-x-auto whitespace-nowrap hide-scrollbar">
             <button onclick="switchTab('calendar')" id="tab-calendar" class="py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none transition">
                 <i class="far fa-calendar-alt mr-2"></i> Calendário
             </button>
             <button onclick="switchTab('list')" id="tab-list" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
                 <i class="fas fa-list mr-2"></i> Visualizar por Mês
+            </button>
+            <button onclick="switchTab('export')" id="tab-export" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
+                <i class="fab fa-whatsapp mr-2"></i> Exportar WhatsApp
             </button>
         </div>
 
@@ -124,17 +127,34 @@
                 </div>
         </div>
 
+        <div id="view-export" class="tab-content">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="font-bold text-gray-800 mb-2 text-lg">Lista de Viagens Futuras</h3>
+                <p class="text-sm text-gray-500 mb-4">Esta lista agrupa as viagens a partir da data de hoje, formatada para colar direto no WhatsApp.</p>
+                
+                <textarea id="whatsappOutput" readonly class="w-full h-64 p-3 border border-gray-300 rounded-md bg-gray-50 text-gray-800 font-mono text-sm resize-none focus:outline-none"></textarea>
+                
+                <button onclick="copyWhatsAppText()" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 shadow-sm flex items-center justify-center">
+                    <i class="far fa-copy mr-2"></i> Copiar para o WhatsApp
+                </button>
+            </div>
+        </div>
+
     </div>
 
     <footer class="text-center text-gray-500 text-sm border-t pt-4 pb-6 mt-auto w-full max-w-4xl mx-auto px-4">
         Desenvolvido por <a href="https://instagram.com/soumaisalex" target="_blank" class="text-inherit hover:underline font-medium">Alex Passos</a>
     </footer>
 
+    <style>
+        /* Ocultar barra de rolagem nas abas mobile */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
     <script>
-        // Variáveis de Estado
         let travelers = [];
         let today = new Date();
-        // Inicializa o calendário com o dia 1º do mês atual
         let currentDate = new Date(today.getFullYear(), today.getMonth(), 1); 
         let editingId = null; 
 
@@ -151,46 +171,7 @@
             }, 3000);
         }
 
-        // --- FILTRO DINÂMICO DE MESES ---
-        function populateMonthFilter() {
-            const select = document.getElementById('monthFilter');
-            const previousSelection = select.value;
-            
-            select.innerHTML = '<option value="all">Mostrar Todos</option>';
-            
-            if (travelers.length === 0) return;
-
-            const monthsSet = new Set();
-            travelers.forEach(t => {
-                // Pega "AAAA-MM" do início e do fim da viagem
-                monthsSet.add(t.startDate.substring(0, 7));
-                monthsSet.add(t.endDate.substring(0, 7));
-            });
-
-            // Ordena cronologicamente
-            const sortedMonths = Array.from(monthsSet).sort();
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
-            sortedMonths.forEach(ym => {
-                const [year, month] = ym.split('-');
-                const option = document.createElement('option');
-                option.value = ym; // ex: "2026-08"
-                option.text = `${monthNames[parseInt(month) - 1]}/${year}`; // ex: "Agosto/2026"
-                select.appendChild(option);
-            });
-
-            // Tenta manter a seleção anterior, ou seleciona o mês atual se houver viagem nele
-            const currentYM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            if (sortedMonths.includes(previousSelection)) {
-                select.value = previousSelection;
-            } else if (sortedMonths.includes(currentYM)) {
-                select.value = currentYM;
-            } else {
-                select.value = 'all';
-            }
-        }
-
-        // --- INTEGRAÇÃO COM API (NEON + CLOUDFLARE) ---
+        // --- INTEGRAÇÃO COM API ---
         async function loadTravelers() {
             try {
                 const res = await fetch('/api/viagens');
@@ -206,17 +187,55 @@
                     instagram: t.instagram || ""
                 }));
 
-                populateMonthFilter(); // Monta a lista dropdown baseada nos dados
-
+                populateMonthFilter();
                 renderCalendar();
+                
                 if(document.getElementById('view-list').classList.contains('active')) renderFilteredList();
+                if(document.getElementById('view-export').classList.contains('active')) generateWhatsAppList();
+                
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
                 showToast("Erro ao conectar com o banco de dados.", "error");
             }
         }
 
-        // --- GESTÃO EXCLUSÃO (Protegida) ---
+        // --- FILTRO DINÂMICO ---
+        function populateMonthFilter() {
+            const select = document.getElementById('monthFilter');
+            const previousSelection = select.value;
+            
+            select.innerHTML = '<option value="all">Mostrar Todos</option>';
+            
+            if (travelers.length === 0) return;
+
+            const monthsSet = new Set();
+            travelers.forEach(t => {
+                monthsSet.add(t.startDate.substring(0, 7));
+                monthsSet.add(t.endDate.substring(0, 7));
+            });
+
+            const sortedMonths = Array.from(monthsSet).sort();
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+            sortedMonths.forEach(ym => {
+                const [year, month] = ym.split('-');
+                const option = document.createElement('option');
+                option.value = ym; 
+                option.text = `${monthNames[parseInt(month) - 1]}/${year}`; 
+                select.appendChild(option);
+            });
+
+            const currentYM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            if (sortedMonths.includes(previousSelection)) {
+                select.value = previousSelection;
+            } else if (sortedMonths.includes(currentYM)) {
+                select.value = currentYM;
+            } else {
+                select.value = 'all';
+            }
+        }
+
+        // --- GESTÃO EXCLUSÃO ---
         function openMgmt() {
             const pass = prompt("Digite a senha de acesso (Exclusão):");
             if (pass === "tripforchilex") {
@@ -233,16 +252,13 @@
 
         async function deleteTraveler(id, name) {
             if (!confirm(`Deseja realmente remover ${name} da lista?`)) return;
-
             try {
                 const res = await fetch(`/api/viagens?id=${id}`, { method: 'DELETE' });
                 if (res.ok) {
                     showToast(`${name} removido com sucesso.`);
                     await loadTravelers(); 
                     renderMgmtList(); 
-                } else {
-                    throw new Error('Falha ao excluir');
-                }
+                } else throw new Error('Falha ao excluir');
             } catch (error) {
                 showToast("Erro ao excluir do banco de dados.", "error");
             }
@@ -304,7 +320,7 @@
             if (!form.classList.contains('hidden')) toggleForm();
         }
 
-        // --- SUBMISSÃO DE FORMULÁRIO ---
+        // --- SUBMISSÃO FORMULÁRIO ---
         document.getElementById('whatsapp').addEventListener('input', function(e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -353,9 +369,7 @@
                     showToast(editingId ? "Viagem atualizada com sucesso!" : "Viajante adicionado com sucesso!");
                     await loadTravelers();
                     resetFormState();
-                } else {
-                    throw new Error('Falha na requisição');
-                }
+                } else throw new Error('Falha na requisição');
             } catch (error) {
                 showToast("Erro ao conectar com o banco.", "error");
             } finally {
@@ -372,28 +386,98 @@
             icon.classList.toggle('fa-chevron-up');
         }
 
-        // --- RENDERIZAÇÃO E UTILITÁRIOS ---
+        // --- ABA EXPORTAR WHATSAPP ---
+        function generateWhatsAppList() {
+            // Zera as horas para comparar apenas os dias
+            const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            
+            // Filtra: Apenas viagens cuja data final é >= hoje
+            const validTravelers = travelers.filter(t => {
+                const [y, m, d] = t.endDate.split('-');
+                const tEnd = new Date(y, m - 1, d);
+                return tEnd >= startOfToday;
+            });
+
+            // Ordena cronologicamente pela data de início
+            validTravelers.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+            const grouped = {};
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+            validTravelers.forEach(t => {
+                const [sy, sm, sd] = t.startDate.split('-');
+                const [ey, em, ed] = t.endDate.split('-');
+                
+                const monthName = monthNames[parseInt(sm) - 1];
+                const groupKey = `*${monthName} ${sy}*`; 
+                
+                if (!grouped[groupKey]) grouped[groupKey] = [];
+
+                let dateStr = "";
+                // Se a viagem começa e termina no mesmo mês: "07 a 13"
+                if (sm === em && sy === ey) {
+                    dateStr = `${sd} a ${ed}`;
+                } else {
+                    // Se vira o mês: "28/08 a 04/09"
+                    dateStr = `${sd}/${sm} a ${ed}/${em}`;
+                }
+
+                grouped[groupKey].push(`${dateStr} - ${t.names}`);
+            });
+
+            let outputText = "";
+            for (const [group, lines] of Object.entries(grouped)) {
+                outputText += `${group}\n`;
+                lines.forEach(line => outputText += `${line}\n`);
+                outputText += `\n`; // Quebra linha extra entre meses
+            }
+
+            const outputElem = document.getElementById('whatsappOutput');
+            outputElem.value = outputText.trim() || "Nenhuma viagem futura encontrada.";
+        }
+
+        function copyWhatsAppText() {
+            const textToCopy = document.getElementById('whatsappOutput').value;
+            if(!textToCopy || textToCopy === "Nenhuma viagem futura encontrada.") {
+                showToast("Nada para copiar!", "error");
+                return;
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Copiado para a área de transferência!");
+            }).catch(err => {
+                showToast("Erro ao copiar o texto.", "error");
+                console.error("Erro no Clipboard:", err);
+            });
+        }
+
+
+        // --- RENDERIZAÇÃO E NAVEGAÇÃO ---
         const formatDateToBR = (dateStr) => { const [y, m, d] = dateStr.split('-'); return `${d}/${m}`; };
         
         const formatWhatsAppLink = (phone) => { 
             let clean = phone.replace(/\D/g, ''); 
             return `https://wa.me/${clean.startsWith('55') || clean.length > 11 ? clean : '55'+clean}`; 
         };
-        
         const formatInstagramLink = (user) => `https://instagram.com/${user.replace('@', '').trim()}`;
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${tab}`).classList.add('active');
             
-            const activeClass = 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none transition';
-            const inactiveClass = 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition';
-            
-            document.getElementById('tab-calendar').className = tab === 'calendar' ? activeClass : inactiveClass;
-            document.getElementById('tab-list').className = tab === 'list' ? activeClass : inactiveClass;
+            const tabs = ['calendar', 'list', 'export'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none transition';
+                } else {
+                    btn.className = 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition';
+                }
+            });
             
             if(tab === 'calendar') renderCalendar();
             if(tab === 'list') renderFilteredList();
+            if(tab === 'export') generateWhatsAppList();
         }
 
         function changeMonth(direction) {
@@ -472,7 +556,6 @@
                 filteredList = travelers.filter(t => {
                     const tStart = new Date(t.startDate + "T00:00:00");
                     const tEnd = new Date(t.endDate + "T00:00:00");
-                    // Pega se a viagem passa por dentro dos dias do mês filtrado
                     return tStart <= filterEnd && tEnd >= filterStart;
                 });
             }
