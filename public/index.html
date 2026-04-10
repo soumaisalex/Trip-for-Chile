@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novos Chilenos 🇨🇱 - Lista de Viagens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Pequeno ajuste para esconder abas inativas */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 flex-grow w-full">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-red-600 mb-2">🇨🇱 Novos Chilenos</h1>
+            <p class="text-gray-600 text-sm italic">Para combinar passeios, saídas, risadas e auxílio fotográfico kkk</p>
+        </header>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2 cursor-pointer flex justify-between items-center" onclick="toggleForm()">
+                Adicionar Viajante(s)
+                <i id="formIcon" class="fas fa-chevron-down text-gray-500"></i>
+            </h2>
+            <form id="travelForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Nome(s) <span class="text-red-500">*</span></label>
+                    <input type="text" id="names" placeholder="Ex: Alex e Júlia" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Chegada <span class="text-red-500">*</span></label>
+                    <input type="date" id="startDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Retorno <span class="text-red-500">*</span></label>
+                    <input type="date" id="endDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">WhatsApp <span class="text-red-500">*</span></label>
+                    <input type="text" id="whatsapp" placeholder="Ex: 79 99999-9999" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Instagram (Opcional)</label>
+                    <input type="text" id="instagram" placeholder="Ex: @soumaisalex" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                </div>
+                <div class="md:col-span-2 mt-2">
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+                        Adicionar à Lista
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="flex border-b border-gray-300 mb-6">
+            <button onclick="switchTab('calendar')" id="tab-calendar" class="py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none">
+                <i class="far fa-calendar-alt mr-2"></i> Calendário
+            </button>
+            <button onclick="switchTab('list')" id="tab-list" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none">
+                <i class="fas fa-list mr-2"></i> Visualizar por Mês
+            </button>
+        </div>
+
+        <div id="view-calendar" class="tab-content active">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <button onclick="changeMonth(-1)" class="text-gray-600 hover:text-red-600"><i class="fas fa-chevron-left text-xl"></i></button>
+                    <h2 id="monthYear" class="text-xl font-bold text-gray-800 capitalize"></h2>
+                    <button onclick="changeMonth(1)" class="text-gray-600 hover:text-red-600"><i class="fas fa-chevron-right text-xl"></i></button>
+                </div>
+                
+                <div class="grid grid-cols-7 gap-1 text-center font-semibold text-sm text-gray-600 mb-2">
+                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                </div>
+                <div id="calendarDays" class="grid grid-cols-7 gap-1 text-center">
+                    </div>
+            </div>
+
+            <div id="selectedDayContainer" class="hidden">
+                <h3 id="selectedDayTitle" class="text-lg font-semibold mb-4 text-gray-800 border-b pb-2"></h3>
+                <div id="dayTravelersList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+
+        <div id="view-list" class="tab-content">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Mês da Viagem:</label>
+                <select id="monthFilter" onchange="renderFilteredList()" class="block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:ring-red-500 focus:border-red-500 text-lg">
+                    <option value="all">Mostrar Todos</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7" selected>Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                </select>
+            </div>
+            
+            <div id="filteredTravelList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+        </div>
+
+    </div>
+
+    <footer class="text-center text-gray-500 text-sm border-t pt-4 pb-6 mt-auto w-full max-w-4xl mx-auto px-4">
+        Desenvolvido por <a href="https://instagram.com/soumaisalex" target="_blank" class="text-inherit hover:underline font-medium">Alex Passos</a>
+    </footer>
+
+    <script>        
+        let travelers = [];
+        let currentDate = new Date(2026, 7, 1); // Agosto de 2026
+
+        // Função para buscar dados do Neon via Cloudflare Functions
+        async function loadTravelers() {
+            try {
+                const res = await fetch('/api/viagens');
+                const data = await res.json();
+                
+                // Adapta o formato do banco (snake_case) para o JavaScript (camelCase)
+                travelers = data.map(t => ({
+                    id: t.id,
+                    names: t.names,
+                    // Garante que a data fique no formato YYYY-MM-DD
+                    startDate: t.start_date.split('T')[0], 
+                    endDate: t.end_date.split('T')[0],
+                    whatsapp: t.whatsapp,
+                    instagram: t.instagram || ""
+                }));
+
+                renderCalendar();
+                if(document.getElementById('view-list').classList.contains('active')) renderFilteredList();
+            } catch (error) {
+                console.error("Erro ao carencer os dados:", error);
+            }
+        }
+
+        // Submissão do Formulário conectada ao banco
+        document.getElementById('travelForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if(new Date(endDate) < new Date(startDate)) {
+                alert("A data de retorno não pode ser anterior à data de chegada!");
+                return;
+            }
+
+            const newTraveler = {
+                names: document.getElementById('names').value,
+                startDate: startDate,
+                endDate: endDate,
+                whatsapp: document.getElementById('whatsapp').value,
+                instagram: document.getElementById('instagram').value
+            };
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerText = "Salvando...";
+            submitBtn.disabled = true;
+
+            try {
+                await fetch('/api/viagens', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newTraveler)
+                });
+
+                await loadTravelers(); // Recarrega a lista atualizada
+                this.reset();
+                toggleForm();
+                alert("Viajante adicionado com sucesso!");
+            } catch (error) {
+                alert("Erro ao salvar. Tente novamente.");
+            } finally {
+                submitBtn.innerText = "Adicionar à Lista";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Restante das suas funções (formatDateToBR, switchTab, renderCalendar, etc) continuam iguais!
+        
+        // Inicia o app chamando o banco
+        loadTravelers();
+
+        // Utilitários
+        const formatDateToBR = (dateStr) => { const [y, m, d] = dateStr.split('-'); return `${d}/${m}`; };
+        const formatWhatsAppLink = (phone) => { let clean = phone.replace(/\D/g, ''); return `https://wa.me/${clean.startsWith('55') || clean.length > 11 ? clean : '55'+clean}`; };
+        const formatInstagramLink = (user) => `https://instagram.com/${user.replace('@', '').trim()}`;
+
+        // Lógica de Abas
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${tab}`).classList.add('active');
+            
+            document.getElementById('tab-calendar').className = tab === 'calendar' ? 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none' : 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none';
+            document.getElementById('tab-list').className = tab === 'list' ? 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none' : 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none';
+            
+            if(tab === 'calendar') renderCalendar();
+            if(tab === 'list') renderFilteredList();
+        }
+
+        // Lógica do Calendário
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            renderCalendar();
+            document.getElementById('selectedDayContainer').classList.add('hidden'); // Oculta lista ao trocar de mês
+        }
+
+        function getTravelersForDate(dateString) {
+            return travelers.filter(t => dateString >= t.startDate && dateString <= t.endDate);
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('monthYear').innerText = `${monthNames[month]} ${year}`;
+            
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            // Espaços vazios
+            for (let i = 0; i < firstDay; i++) {
+                calendarDays.innerHTML += `<div></div>`;
+            }
+
+            // Dias do mês
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const travelersOnThisDay = getTravelersForDate(dayString);
+                const hasTravelers = travelersOnThisDay.length > 0;
+                
+                let dayClass = "p-2 sm:p-4 border rounded cursor-pointer transition hover:bg-red-50 relative ";
+                dayClass += hasTravelers ? "bg-red-50 border-red-200 font-bold text-red-700 shadow-sm" : "bg-gray-50 border-gray-200 text-gray-700";
+
+                let indicator = hasTravelers ? `<div class="absolute bottom-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>` : "";
+
+                calendarDays.innerHTML += `
+                    <div class="${dayClass}" onclick="showTravelersOnDay('${dayString}', ${i}, '${monthNames[month]}')">
+                        ${i}
+                        ${indicator}
+                    </div>
+                `;
+            }
+        }
+
+        function showTravelersOnDay(dateString, day, monthName) {
+            const list = getTravelersForDate(dateString);
+            const container = document.getElementById('selectedDayContainer');
+            const title = document.getElementById('selectedDayTitle');
+            const listDiv = document.getElementById('dayTravelersList');
+            
+            if (list.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            title.innerText = `Viajantes em ${day} de ${monthName}`;
+            listDiv.innerHTML = generateCardsHTML(list);
+        }
+
+        // Lógica da Lista Filtrada
+        function renderFilteredList() {
+            const filterValue = document.getElementById('monthFilter').value;
+            const listDiv = document.getElementById('filteredTravelList');
+            
+            let filteredList = travelers;
+            if (filterValue !== 'all') {
+                filteredList = travelers.filter(t => {
+                    // Verifica se a viagem toca o mês selecionado
+                    const startMonth = parseInt(t.startDate.split('-')[1]) - 1;
+                    const endMonth = parseInt(t.endDate.split('-')[1]) - 1;
+                    const filterMonth = parseInt(filterValue);
+                    return filterMonth >= startMonth && filterMonth <= endMonth;
+                });
+            }
+
+            // Ordena cronologicamente
+            filteredList.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+            listDiv.innerHTML = filteredList.length > 0 ? generateCardsHTML(filteredList) : `<p class="text-gray-500 col-span-2">Nenhum viajante encontrado para este mês.</p>`;
+        }
+
+        // Gera o HTML dos Cards
+        function generateCardsHTML(travelerArray) {
+            return travelerArray.map(t => {
+                let linksHTML = `<a href="${formatWhatsAppLink(t.whatsapp)}" target="_blank" class="text-green-500 hover:text-green-700 mr-4" title="Chamar no WhatsApp"><i class="fab fa-whatsapp text-xl"></i></a>`;
+                if (t.instagram) linksHTML += `<a href="${formatInstagramLink(t.instagram)}" target="_blank" class="text-pink-500 hover:text-pink-700" title="Ver Instagram"><i class="fab fa-instagram text-xl"></i> ${t.instagram}</a>`;
+                return `
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">${t.names}</h3>
+                            <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded">
+                                <i class="far fa-calendar-alt"></i> ${formatDateToBR(t.startDate)} a ${formatDateToBR(t.endDate)}
+                            </span>
+                        </div>
+                        <div class="mt-4 flex items-center">${linksHTML}</div>
+                    </div>`;
+            }).join('');
+        }
+
+        // Ocultar/Exibir Formulário
+        function toggleForm() {
+            const form = document.getElementById('travelForm');
+            const icon = document.getElementById('formIcon');
+            form.classList.toggle('hidden');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // Submissão do Formulário
+        document.getElementById('travelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newTraveler = {
+                id: Date.now(),
+                names: document.getElementById('names').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                instagram: document.getElementById('instagram').value
+            };
+            if(new Date(newTraveler.endDate) < new Date(newTraveler.startDate)) {
+                alert("A data de retorno não pode ser anterior à data de chegada!");
+                return;
+            }
+            travelers.push(newTraveler);
+            renderCalendar();
+            if(document.getElementById('view-list').classList.contains('active')) renderFilteredList();
+            this.reset();
+            toggleForm(); // Esconde o form após adicionar
+            alert("Viajante adicionado com sucesso!");
+        });
+
+        // Init
+        renderCalendar();
+    </script>
+</body>
+</html>
