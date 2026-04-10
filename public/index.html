@@ -117,12 +117,6 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Mês da Viagem:</label>
                 <select id="monthFilter" onchange="renderFilteredList()" class="block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:ring-red-500 focus:border-red-500 text-lg">
                     <option value="all">Mostrar Todos</option>
-                    <option value="4">Maio</option>
-                    <option value="5">Junho</option>
-                    <option value="6">Julho</option>
-                    <option value="7" selected>Agosto</option>
-                    <option value="8">Setembro</option>
-                    <option value="9">Outubro</option>
                 </select>
             </div>
             
@@ -139,8 +133,10 @@
     <script>
         // Variáveis de Estado
         let travelers = [];
-        let currentDate = new Date(2024, 7, 1); // Agosto de 2024
-        let editingId = null; // Controla se é adição (null) ou edição (ID)
+        let today = new Date();
+        // Inicializa o calendário com o dia 1º do mês atual
+        let currentDate = new Date(today.getFullYear(), today.getMonth(), 1); 
+        let editingId = null; 
 
         // --- SISTEMA DE TOAST ---
         function showToast(message, type = 'info') {
@@ -153,6 +149,45 @@
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        // --- FILTRO DINÂMICO DE MESES ---
+        function populateMonthFilter() {
+            const select = document.getElementById('monthFilter');
+            const previousSelection = select.value;
+            
+            select.innerHTML = '<option value="all">Mostrar Todos</option>';
+            
+            if (travelers.length === 0) return;
+
+            const monthsSet = new Set();
+            travelers.forEach(t => {
+                // Pega "AAAA-MM" do início e do fim da viagem
+                monthsSet.add(t.startDate.substring(0, 7));
+                monthsSet.add(t.endDate.substring(0, 7));
+            });
+
+            // Ordena cronologicamente
+            const sortedMonths = Array.from(monthsSet).sort();
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+            sortedMonths.forEach(ym => {
+                const [year, month] = ym.split('-');
+                const option = document.createElement('option');
+                option.value = ym; // ex: "2026-08"
+                option.text = `${monthNames[parseInt(month) - 1]}/${year}`; // ex: "Agosto/2026"
+                select.appendChild(option);
+            });
+
+            // Tenta manter a seleção anterior, ou seleciona o mês atual se houver viagem nele
+            const currentYM = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            if (sortedMonths.includes(previousSelection)) {
+                select.value = previousSelection;
+            } else if (sortedMonths.includes(currentYM)) {
+                select.value = currentYM;
+            } else {
+                select.value = 'all';
+            }
         }
 
         // --- INTEGRAÇÃO COM API (NEON + CLOUDFLARE) ---
@@ -170,6 +205,8 @@
                     whatsapp: t.whatsapp,
                     instagram: t.instagram || ""
                 }));
+
+                populateMonthFilter(); // Monta a lista dropdown baseada nos dados
 
                 renderCalendar();
                 if(document.getElementById('view-list').classList.contains('active')) renderFilteredList();
@@ -202,7 +239,7 @@
                 if (res.ok) {
                     showToast(`${name} removido com sucesso.`);
                     await loadTravelers(); 
-                    renderMgmtList(); // Atualiza a lista do modal
+                    renderMgmtList(); 
                 } else {
                     throw new Error('Falha ao excluir');
                 }
@@ -239,11 +276,9 @@
 
             editingId = id;
 
-            // Abre o form se estiver fechado
             const form = document.getElementById('travelForm');
             if (form.classList.contains('hidden')) toggleForm();
 
-            // Muda UI do botão
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Salvar Alterações";
             btn.classList.replace('bg-red-600', 'bg-blue-600');
@@ -251,7 +286,6 @@
             
             document.getElementById('cancelEditBtn').classList.remove('hidden');
 
-            // Scroll suave
             form.parentElement.scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -270,8 +304,7 @@
             if (!form.classList.contains('hidden')) toggleForm();
         }
 
-        // --- SUBMISSÃO DE FORMULÁRIO (ADD / EDIT) ---
-        // Validação da máscara de telefone enquanto digita
+        // --- SUBMISSÃO DE FORMULÁRIO ---
         document.getElementById('whatsapp').addEventListener('input', function(e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -302,9 +335,7 @@
                 instagram: document.getElementById('instagram').value
             };
 
-            if (editingId) {
-                payload.id = editingId;
-            }
+            if (editingId) payload.id = editingId;
 
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerText;
@@ -434,11 +465,15 @@
             
             let filteredList = travelers;
             if (filterValue !== 'all') {
+                const [filterYear, filterMonth] = filterValue.split('-');
+                const filterStart = new Date(filterYear, parseInt(filterMonth) - 1, 1);
+                const filterEnd = new Date(filterYear, parseInt(filterMonth), 0);
+                
                 filteredList = travelers.filter(t => {
-                    const startMonth = parseInt(t.startDate.split('-')[1]) - 1;
-                    const endMonth = parseInt(t.endDate.split('-')[1]) - 1;
-                    const filterMonth = parseInt(filterValue);
-                    return filterMonth >= startMonth && filterMonth <= endMonth;
+                    const tStart = new Date(t.startDate + "T00:00:00");
+                    const tEnd = new Date(t.endDate + "T00:00:00");
+                    // Pega se a viagem passa por dentro dos dias do mês filtrado
+                    return tStart <= filterEnd && tEnd >= filterStart;
                 });
             }
 
