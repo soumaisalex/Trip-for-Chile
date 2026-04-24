@@ -99,6 +99,9 @@
             <button onclick="switchTab('tips')" id="tab-tips" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
                 <i class="fas fa-lightbulb mr-2 text-yellow-500"></i> Dicas
             </button>
+            <button onclick="switchTab('map')" id="tab-map" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
+                <i class="fas fa-map-marked-alt text-blue-500 mr-2"></i> Área de Busca
+            </button>
             <button onclick="switchTab('export')" id="tab-export" class="py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition">
                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp
             </button>
@@ -327,6 +330,27 @@
                 </div>
             </div>
         </div>
+
+        <!-- MAPA DA ÁREA DE COBERTURA -->
+        <div id="view-map" class="tab-content">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="font-bold text-gray-800 mb-4 text-lg border-l-4 border-red-600 pl-3">Área de Cobertura - Transfer</h3>
+                
+                <div class="mb-6 flex gap-2">
+                    <input type="text" id="searchAddress" placeholder="Digite o nome do seu hotel ou rua..." class="flex-grow rounded-md border-gray-300 shadow-sm border p-2 focus:ring-blue-500">
+                    <button onclick="checkAddressOnMap()" class="bg-blue-600 text-white px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition">Ver no Google Maps</button>
+                </div>
+                <div class="w-full rounded-lg overflow-hidden border border-gray-200" style="height: 480px;">
+                    <iframe src="https://www.google.com/maps/d/embed?mid=1SNVVfS7lS6-N4-c3EIJt-Oj8wXf3EoA&hl=es&ehbc=2E312F" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+                
+                <div class="mt-4 bg-yellow-50 p-3 rounded text-sm text-yellow-800 border border-yellow-200">
+                    <p><strong>Atenção:</strong> O mapa acima mostra a área de busca da agência. Use a barra de pesquisa para encontrar seu hotel no Google Maps e compare visualmente se ele está dentro da zona delimitada.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- exportar para whatsapp -->
         <div id="view-export" class="tab-content">
             <div class="bg-white p-6 rounded-lg shadow-md mb-6">
                 <h3 class="font-bold text-gray-800 mb-2 text-lg">Lista de Viagens Futuras</h3>
@@ -561,7 +585,7 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${tab}`).classList.add('active');
-            ['calendar', 'list', 'links', 'tips', 'export'].forEach(t => {
+            ['calendar', 'list', 'links', 'tips', 'map', 'export'].forEach(t => {
                 const b = document.getElementById(`tab-${t}`);
                 if (t === tab) b.className = 'py-2 px-4 font-semibold text-red-600 border-b-2 border-red-600 focus:outline-none transition';
                 else b.className = 'py-2 px-4 font-semibold text-gray-500 hover:text-red-600 focus:outline-none transition';
